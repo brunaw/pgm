@@ -1,0 +1,113 @@
+---
+title: "Gaussian Mixturess"
+author: 'Bruna Wundervald'
+date: 'October, 2018'
+output: pdf_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{python, engine.path = '/anaconda3/bin/python3'}
+# Packages and models import
+# Starting with defining the network structure
+
+import numpy as np
+import matplotlib.pyplot as plt
+from skbayes.mixture_models import VBGMMARD
+from matplotlib.patches import Ellipse
+import pandas as pd
+
+
+# Simulating data ------------------------------------------------------
+X = np.zeros([600,2])
+np.random.seed(0)
+X[0:200,:]   = np.random.multivariate_normal(mean = (0,10), cov = [[3,0],[0,2]], size = 200)
+X[200:400,:] = np.random.multivariate_normal(mean = (0,0) , cov = [[3,0],[0,2]], size = 200)
+X[400:600,:] = np.random.multivariate_normal(mean = (0,-10) , cov = [[3,0],[0,2]], size = 200)
+```
+
+```{python, engine.path = '/anaconda3/bin/python3'}
+
+# fit model & get parameters
+max_k = 3
+gmm = VBGMMARD(n_components = max_k, prune_thresh = 1e-5,
+                   n_mfa_iter = 10)
+gmm.fit(X)
+
+centers = gmm.means_
+covars  = gmm.covars_
+k_selected = centers.shape[0]
+# Plots --------------------------------------------------------------
+def eigsorted(cov):
+  vals, vecs = np.linalg.eigh(cov)
+  order = vals.argsort()[::-1]
+  return vals[order], vecs[:,order]
+
+nstd = 2
+
+# plot data
+plt.clf()
+fig, ax = plt.subplots(figsize = (10,6))
+ax.plot(X[:,0],X[:,1],'bo', label = 'data', color = 'maroon')
+ax.plot(centers[:,0],centers[:,1],'rD', markersize = 8, label = 'means', color = 'black')
+
+# Adding ellipses
+# First
+pos_1 = centers[1, :]
+cov_1 = covars[1]
+
+ax = plt.gca()
+vals, vecs = eigsorted(cov_1)
+theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
+
+# Width and height are "full" widths, not radius
+width, height = 2 * nstd * np.sqrt(vals)
+ellip = Ellipse(xy=pos_1, width=width, height=height, angle=theta, fill = False,
+color = 'orange', alpha = 0.8, linewidth = 4)
+
+ax.add_artist(ellip)
+
+# Second
+pos_2 = centers[2, :]
+cov_2 = covars[2]
+
+ax = plt.gca()
+vals, vecs = eigsorted(cov_2)
+theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
+
+# Width and height are "full" widths, not radius
+width, height = 2 * nstd * np.sqrt(vals)
+ellip = Ellipse(xy=pos_2, width=width, height=height, angle=theta, fill = False,
+color = 'orange', alpha = 0.8, linewidth = 4)
+
+ax.add_artist(ellip)
+
+# Third
+pos_3 = centers[0, :]
+cov_3 = covars[0]
+
+ax = plt.gca()
+vals, vecs = eigsorted(cov_3)
+theta = np.degrees(np.arctan2(*vecs[:,0][::-1]))
+
+# Width and height are "full" widths, not radius
+width, height = 2 * nstd * np.sqrt(vals)
+ellip = Ellipse(xy=pos_3, width=width, height=height, angle=theta, fill = False, linewidth = 4, color = 'orange', alpha = 0.8)
+
+ax.add_artist(ellip)
+
+plt.xlabel('x1')
+plt.ylabel('x2')
+plt.legend(loc = 2)
+plt.title(('Gaussian Mixtures' + ', {0} initial clusters, {1} selected clusters').format(max_k,k_selected))
+plt.show()
+
+
+
+
+
+
+
+```
+

@@ -1,0 +1,18 @@
+---
+title: "Probabilistical Models"
+author: Bruna Wundervald
+output: html_document
+---
+
+
+
+# Models list
+  - Latent Variable Models
+  - Probabilistic Clustering 
+  - Gaussian Mixture Model
+  - EM efficiency 
+  - Probabilistic K-Means
+  - Probabilistic PCA
+  - Topic Modelling with LDA
+  - Bayesian Neural Networks 
+  - Gaussian processes and Bayesian optimisation 
